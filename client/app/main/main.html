@@ -1,0 +1,388 @@
+<!-- big container -->
+<div
+  class="big-container animate-medium"
+  ng-class="setBigContainerClass()"
+  fitheight
+  header-styling="headerStyles"
+>
+
+  <!--dynamically changed headers styling -->
+  <style ng-bind-html="headerStyles"></style>
+
+  <!-- left menu column -->
+  <div class="column side-column"
+      ng-switch="leftMenuMode"
+  >
+    <div
+      class="menu-wrapper"
+      ng-include="setLeftMenuContent(leftMenuMode)"
+    ></div>
+    <div class="row bottom-group">
+      <div class="btn-group flexed">
+        <div
+          class="btn"
+          ng-class="{'active': leftMenuMode === 'about'}"
+          ng-click="toggleLeftMenuMode('about')"
+        >About</div>
+      </div>
+    </div>
+  </div><!-- end left menu column -->
+
+
+  <!-- COLUMN  ZOTERO -->
+  <div class="column" id="zotero-column">
+    <div class="row step-header">
+    </div>
+
+    <div class="row selectors-container inline-options-container">
+      <form class="inline-option inline-option-big inline-options-container animate" ng-submit="newZoteroQuery(searchQuery)">
+        <span class="zotero-searching glyphicon glyphicon-upload animate-medium" ng-if="zoteroPending"></span>
+        <input class="inline-option inline-option-big" type="text" placeholder="query your zotero library" ng-model="searchQuery">
+        <input ng-if="!zoteroPending && searchMode" class="inline-option" type="submit" value="search">
+      </form>
+      <div
+        class="inline-option btn animate"
+        ng-click="addAllMatching()"
+        ng-show="overallItems.length > 0 && !zoteroPending && searchMode"
+        style="background : #e7e7e7;border-radius : 0"
+      >
+        Select all
+      </div>
+    </div>
+
+    <div
+      class="row results-display-container long-container animate-fast"
+      fit-height
+    >
+      <div
+        class="consultable-container animate"
+      >
+
+        <div class="loading"
+          ng-show="overallItems.length == 0 || !collectionsList.length"
+        >
+          Loading
+        </div>
+        <!-- separate item -->
+        <div
+          class="zotero-item animate"
+          ng-repeat="item in overallItems | filter:searchInItem"
+          ng-click="addToSelected(item)"
+          ng-if="searchMode"
+        >
+          <span
+            class="item-icon glyphicon"
+            ng-class="setZoteroItemIcon(item.data.itemType)"
+          ></span>
+          <div class="zotero-item-primary-information">
+            <h4 class="zotero-title" ng-bind="item.data.title"></h4>
+            <p class="zotero-authors" ng-if="item.data.creators">
+              <p ng-repeat="creator in item.data.creators track by $index">
+                {{creator.firstName}} {{creator.lastName}}, {{creator.creatorType}}.
+              </p>
+            </p>
+          </div>
+
+
+          <div class="zotero-item-additional-information animate-medium">
+            <p class="zotero-type"  ng-bind="'Item type : '+item.data.itemType">Type of entry</p>
+            <p class="zotero-type"  ng-bind="(item.data.date)?'Date : '+item.data.date:'Date : unknown'">Date</p>
+          </div>
+
+          <div class="add-sign animate-medium">
+            <span class="glyphicon glyphicon-arrow-right"></span>
+          </div>
+        </div><!-- end separate item -->
+
+        <!-- collections -->
+        <div
+          class="zotero-item animate"
+          ng-repeat="collection in collectionsList | filter:searchInItem"
+          ng-click="addCollectionItemsToSelected(collection)"
+          ng-if="!searchMode"
+        >
+          <span
+            class="item-icon glyphicon glyphicon-th-list"
+          ></span>
+          <div class="zotero-item-primary-information">
+            <h4 class="zotero-title" ng-bind="collection.data.name + ' (' + collection.meta.numItems + ' items)'"></h4>
+          </div>
+
+          <div class="add-sign animate-medium">
+            <span class="glyphicon glyphicon-arrow-right"></span>
+          </div>
+        </div><!-- end collections -->
+
+        <div
+          class="more-items"
+          ng-click="getMore()"
+          ng-show="overallItems.length > 0"
+          ng-bind="(zoteroPending)?'loading':'Fetch more items'"
+          ng-if="searchMode"
+        >
+        </div>
+      </div>
+    </div>
+
+    <div class="row bottom-group">
+        <div
+          class="row selected-items-container animate-fast inline-options-container"
+          ng-show="selectedItems.length > 0"
+        >
+          <h3 class="inline-option">
+            <span class="glyphicon glyphicon-remove" ng-click="clearAllSelected()" style="cursor:pointer">
+            {{selectedItems.length}} item<span ng-if="selectedItems.length > 1">s</span> to visualize
+
+          </h3>
+          </span>
+        </div>
+        <div class="selected-list-wrapper long-container">
+          <div class="selected-list-container animate-medium">
+            <div
+              class="zotero-item slide-height selected-zotero"
+              ng-repeat="item in selectedItems track by $index"
+                ng-click="setBrowsedItemIndex($index)"
+                ng-class="{'active':outputMode == 'browse' && $index === browsedItemIndex}"
+            >
+              <h4
+                class="zotero-title"
+              >
+                <span class="remove glyphicon glyphicon-remove animate-medium" ng-click="removeFromSelected($index)"></span>
+                <span class="confirm glyphicon glyphicon-ok animate-medium" ng-click="removeFromSelected($index)"></span>
+                <span ng-bind="item.data.title"></span>
+              </h4>
+            </div>
+          </div>
+        </div>
+        <div
+          class="btn-group flexed"
+          ng-if="!connectingZotero"
+        >
+
+          <div
+            class="btn"
+            ng-class="{'active': !searchMode}"
+            ng-click="toggleSearchMode(false)"
+          >Select items by collection</div>
+
+          <div
+            class="btn"
+            ng-class="{'active': searchMode}"
+            ng-click="toggleSearchMode(true)"
+          >Select items individually</div>
+      </div>
+    </div><!--end row bottom group -->
+
+    <div
+      class="moving-header toggable animate-medium"
+      ng-class="{'minified' : !connectingZotero}"
+    >
+
+      <div class="animate-medium"
+        ng-class="{'centered':connectingZotero}"
+      >
+        <h2
+          class="animate-medium"
+          ng-click="toggleZoteroConnect()"
+          ng-class="{'big':connectingZotero}"
+        ><span class="step-number">1</span>
+        <span>
+          <span ng-bind="(!connectingZotero)?'Select bibliographic references':'Connect to zotero'"></span>
+          <span ng-click="connectingZotero = false" ng-if="connectingZotero && userId && apiKey && overallItems.length" class="glyphicon glyphicon-remove" style="cursor:pointer"></span>
+        </span>
+        </h2>
+        <div
+        ng-if="connectingZotero"
+        >
+          <p class="connect-choice animate-medium"
+            ng-if="!zoteroPending"
+          >Connect to your zotero account</p>
+
+          <form
+            class="connect-interface"
+            ng-submit="setZoteroCredentials(inputAPIkey, inputUserId, true)"
+            ng-if="!zoteroPending"
+          >
+
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="sizing-addon1">Input your API key</span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="API key"
+                aria-describedby="sizing-addon1"
+                ng-model="inputAPIkey"
+              >
+            </div>
+
+            <div class="input-group input-group-lg">
+              <span class="input-group-addon" id="sizing-addon1">Input your user Id</span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="user Id"
+                aria-describedby="sizing-addon1"
+                ng-model="inputUserId"
+              >
+            </div>
+
+            <button
+              type="submit"
+              ng-if="inputAPIkey.length && inputUserId.length"
+              class="btn"
+            >Connect !</button>
+          </form>
+
+          <div  class="connect-options" ng-if="!zoteroPending">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <input ng-model="rememberCredentials" type="checkbox" aria-label="...">
+              </span>
+              <p>Remember my credentials next time</p>
+            </div><!-- /input-group -->
+            <p
+              ng-click="toggleLeftMenuMode('connect');$event.stopPropagation();toggleAside('left')"
+              class="help"
+            ><span class="glyphicon glyphicon-question-sign" style="margin-right:1em"></span>Where do I find that ?</p>
+          </div>
+
+
+
+          <p class="connect-choice connect-to-default animate-medium" ng-click="setDefaultZoteroCredentials()" ng-if="!zoteroPending">Or connect to an example zotero account</p>
+
+          <p
+            ng-if="zoteroStatus"
+            ng-bind="zoteroStatus"
+          ></p>
+        </div>
+
+
+      </div>
+    </div><!--end moving-header-->
+
+
+
+    <span class="absolute-top-left animate-medium mini-icon" ng-click="toggleAside('left')" style="color:white">
+      <div
+        class="nav-icon"
+        ng-class="{'open':asides.left}"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </span>
+  </div>
+  <!-- END COLUMN ZOTERO -->
+
+  <!-- COLUMN OUTPUT -->
+  <div class="column" id="output-column">
+    <div class="row step-header">
+
+    </div>
+    <div class="row long-container"
+        fit-height
+        next-selector="#output-column .bottom-group"
+        ng-switch="outputMode"
+    >
+      <div
+        class="output-container"
+        ng-include="setOutputModeHtml()"
+      >
+      </div>
+    </div>
+    <div
+      class="moving-header animate-medium"
+      ng-class="{'minified' : userId && apiKey && selectedItems.length}"
+    >
+
+      <div class="animate-medium"
+          ng-class="{'centered':!userId || !apiKey || !selectedItems.length}"
+
+      >
+
+        <h2
+          ng-class="{'big':!userId || !apiKey || !selectedItems.length}"
+          class="animate-medium"
+        >
+        <span class="step-number">2</span>
+          Visualize zotero items
+        </h2>
+        <div
+        ng-if="connectingZotero || !selectedItems.length"
+        >
+
+          <p>
+            <span ng-if="connectingZotero">
+              <span class="glyphicon glyphicon-arrow-left" style="margin-right:1em"></span>
+              Connect to a zotero account in the first column
+            </span>
+            <span ng-if="!connectingZotero">
+              <span class="glyphicon glyphicon-ok" style="margin-right:1em"></span>
+              Connected to zotero
+            </span>
+          </p>
+          <p>
+            <span ng-if="!selectedItems.length">
+              <span class="glyphicon glyphicon-arrow-left" style="margin-right:1em"></span>Select bibliographic items</p>
+            </span>
+
+            <span ng-if="selectedItems.length">
+              <span class="glyphicon glyphicon-ok" style="margin-right:1em"></span>
+              Items ready to be processed
+            </span>
+
+        </div>
+
+
+      </div>
+    </div>
+
+    <div class="row bottom-group">
+      <div class="btn-group flexed animate-medium"
+          ng-show="userId && apiKey && selectedItems.length"
+      >
+        <div
+          class="btn"
+          ng-class="{'active': outputMode === 'browse'}"
+          ng-click="toggleOutputMode('browse')"
+        >Browse references webpage</div>
+        <div
+          class="btn"
+          ng-class="{'active': outputMode === 'visualize'}"
+          ng-click="toggleOutputMode('visualize')"
+        >Visualize references connections</div>
+        <!--<div
+          class="btn"
+          ng-class="{'active': outputMode === 'full-search'}"
+          ng-click="toggleOutputMode('full-search')"
+        >Search in references webpages</div>-->
+      </div>
+    </div>
+
+
+    <!-- <span class="absolute-top-right animate-medium mini-icon options-btn" ng-click="toggleAside('right')" ng-class="{'active':asides.right}">
+      <span class="glyphicon glyphicon-cog animate-medium"></span>
+    </span> -->
+  </div>
+  <!-- END COLUMN 3 -->
+
+
+  <!-- right column -->
+  <div class="column side-column"
+  >
+    <div
+      ng-include="'assets/html/options-export.html'"
+    ></div>
+  </div><!-- end right column-->
+
+
+  <!-- column cache -->
+  <div
+    class="column column-cache animate-medium"
+    ng-if="asides.left || asides.right"
+    ng-click="asides.left = asides.right = false"
+  ></div>
+
+
+</div><!--end big container -->

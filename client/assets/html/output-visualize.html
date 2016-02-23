@@ -1,0 +1,44 @@
+<div class="row visualize-container"
+  ng-if="userId && apiKey && selectedItems.length"
+>
+  <!-- visualization -->
+  <div class="visualize-wrapper" ng-switch="visualizationParameters.mode">
+    <svg ng-switch-when="graph" class="zotero-graph" data="visData" get-icon="setZoteroItemIcon(type)"></svg>
+    <svg ng-switch-when="time" class="zotero-time-crossings" data="visData" get-icon="setZoteroItemIcon(type)"></svg>
+  </div>
+  <!--visualization end -->
+
+  <div class="visualize-options col-xs-2 col-xs-offset-10">
+    <ul class="big-list">
+      <li
+        ng-repeat="connector in visualizationParameters.connectors track by $index"
+        ng-bind="'Show '+connector.name"
+        ng-class="{'active':connector.active}"
+        ng-click="toggleConnectorActivity(connector)"
+      ></li>
+    </ul>
+    <div
+      class="btn-group flexed animate-medium"
+      ng-if="visualizationParameters.mode === 'graph'"
+      ng-click="toggleShowReferences()"
+    >
+      <div
+        class="btn"
+        ng-class="{'active' : visualizationParameters.showReferences}"
+      >Show references</div>
+    </div>
+    <p>Visualization mode :</p>
+    <ul class="big-list">
+      <li
+        ng-class="{'active':visualizationParameters.mode === 'graph'}"
+        ng-click="toggleVisMode('graph')"
+      >Network graph</li>
+
+      <li
+        ng-class="{'active':visualizationParameters.mode === 'time'}"
+        ng-click="toggleVisMode('time')"
+      >Time crossings</li>
+    </ul>
+
+  </div>
+</div>

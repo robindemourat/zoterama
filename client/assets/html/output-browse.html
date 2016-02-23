@@ -1,0 +1,87 @@
+<div class="row browse-container">
+  <div class="col-xs-8">
+    <div
+      class="browse-item-original"
+       ng-if="browsedItem.data.url"
+    >
+
+      <a target="blank" ng-href="{{browsedItem.data.url}}">
+        <span class="glyphicon glyphicon-arrow-right" style="margin-right:1em"></span>
+        Open website in a new tab
+      </a>
+    </div>
+
+    <iframe ng-src="{{browsedItemUrl}}" frameborder="0" ng-if="browsedItem.data.url"></iframe>
+
+    <div class="no-url" ng-if="!browsedItem.data.url">
+      No item's URL to visualize for this Zotero record !
+    </div>
+
+  </div>
+  <div class="col-xs-4">
+    <div
+      class="browse-previous-container"
+      ng-if="browsedItemIndex > 0"
+    >
+      <p id="browse-begining"
+      ng-if="selectedItems.length > 2"
+        ng-click="setBrowsedItemIndex(0)"
+      >
+        <span class="glyphicon glyphicon-menu-up"></span>
+        Browse to begining of list
+      </p>
+      <p id="browse-previous"
+        ng-click="setBrowsedItemIndex(browsedItemIndex - 1)"
+      >
+        <span class="glyphicon glyphicon-triangle-top"></span>
+        browse to previous item
+      </p>
+    </div>
+
+
+    <div class="cartel-container" fit-height>
+      <h4 ng-bind="browsedItem.data.title"></h4>
+
+      <p class="properties-container type">
+        Item type : {{browsedItem.data.itemType}}
+      </p>
+
+      <p class="properties-container date">
+        Date : {{browsedItem.data.date}}
+      </p>
+
+      <p class="properties-container creators">
+        Authors : <span ng-repeat="creator in browsedItem.data.creators track by $index"><span ng-bind="creator.firstName + ' ' + creator.lastName"></span><span ng-if="creator.creatorType != 'author'" ng-bind="' ('+creator.creatorType+')'"></span><span ng-if="!$last">, </span></span>.
+      </p>
+
+      <p class="properties-container abstract" ng-if="browedItem.data.publisher">Publisher : <span bg-bind="browsedItem.data.publisher"></span></p>
+
+      <p class="properties-container abstract" ng-bind="browedItem.data.abstractNote"></p>
+
+      <p class="properties-container tags" ng-if="browsedItem.data.tags.length > 0">
+        Tags : <span ng-repeat="creator in browsedItem.data.tags track by $index"><span ng-bind="tag.tag"></span></span> <span ng-if="!$last">, </span></span>.
+      </p>
+
+      <!-- TODO : properties displaying to continue (publisher, parent publication, etc.) -->
+    </div>
+
+    <div
+      class="browse-next-container"
+      ng-if="browsedItemIndex < selectedItems.length && selectedItems.length > 1"
+    >
+      <p id="browse-next"
+        ng-click="setBrowsedItemIndex(browsedItemIndex + 1)"
+      >
+        <span class="glyphicon glyphicon-triangle-bottom"></span>
+        browse to next item
+      </p>
+      <p id="browse-end"
+        ng-click="setBrowsedItemIndex(selectedItems.length - 1)"
+        ng-if="selectedItems.length > 2"
+      >
+        <span class="glyphicon glyphicon-menu-down"></span>
+        Browse to end of list
+      </p>
+    </div>
+  </div>
+</div>
