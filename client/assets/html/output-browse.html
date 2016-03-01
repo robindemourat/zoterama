@@ -59,7 +59,7 @@
       <p class="properties-container abstract" ng-bind="browedItem.data.abstractNote"></p>
 
       <p class="properties-container tags" ng-if="browsedItem.data.tags.length > 0">
-        Tags : <span ng-repeat="creator in browsedItem.data.tags track by $index"><span ng-bind="tag.tag"></span></span> <span ng-if="!$last">, </span></span>.
+        Tags : <span ng-repeat="tag in browsedItem.data.tags track by $index"><span ng-bind="tag.tag"></span><span ng-if="!$last">, </span></span>.
       </p>
 
       <!-- TODO : properties displaying to continue (publisher, parent publication, etc.) -->

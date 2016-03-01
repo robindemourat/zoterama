@@ -409,6 +409,7 @@ angular.module('zoteramaApp')
         $scope.browsedItemUrl = $sce.trustAsResourceUrl($scope.browsedItem.data.url);
       }
       setTimeout(function(){
+        console.log($scope.browsedItemUrl);
         $scope.$apply();
       })
     }
