@@ -13,9 +13,15 @@
 @mediumDuration : .5s;
 @longDuration : 1s;
 
+// @color1A : #27556C;
+// @color2A : #28794B;
+// @color3A : #313975;
+
 @color1A : #27556C;
-@color2A : #28794B;
-@color3A : #313975;
+@color2A : #00C79A;
+@color3A : #034F83;
+
+@colorNumber : #ED6457;
 
 
 /**
@@ -399,7 +405,7 @@ form.inline-option
 
 .btn-group .btn.active
 {
-    background: brown;
+    background: @colorNumber;
     cursor : default;
 }
 
@@ -483,7 +489,7 @@ FUN FUN FUN
 
     color: white;
     border-radius: 50%;
-    background: brown;
+    background: @colorNumber;
 }
 
 .column#editor-column .moving-header
@@ -507,7 +513,7 @@ FUN FUN FUN
 .column#zotero-column .moving-header.toggable.minified:hover
 {
     cursor: pointer;
-    background : brown;
+    background : @colorNumber;
 }
 
 .column#editor-column .moving-header.toggable.minified:hover .step-number
@@ -561,7 +567,7 @@ ul.big-list#templates-list
 .big-list li.active
 {
     color: white;
-    background: brown;
+    background: @colorNumber;
 }
 
 .big-list li:hover
@@ -845,7 +851,7 @@ zotero-related interface
 }
 
 .selected-zotero.active{
-    background : brown;
+    background : @colorNumber;
 }
 
 /*

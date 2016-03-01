@@ -93,7 +93,7 @@ angular.module('zoteramaApp')
             var update = function(){
 
 
-                console.log('updating graph : ', scope.data);
+                // console.log('updating graph : ', scope.data);
                 w = element.width();
                 h = element.height();
 
@@ -122,7 +122,9 @@ angular.module('zoteramaApp')
                             .attr('opacity', 0e-1)
                             .attr("x1", function(d) { return d.source.x; })
                       .attr("y1", function(d) { return d.source.y; })
-                        .attr("x2", function(d) { return d.target.x; })
+                        .attr("x2", function(d) {
+                                return d.target.x;
+                            })
                             .attr("y2", function(d) { return d.target.y; })
                                 .transition()
                                     .duration(1000)

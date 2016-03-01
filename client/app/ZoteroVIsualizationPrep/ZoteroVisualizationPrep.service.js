@@ -73,6 +73,7 @@ angular.module('zoteramaApp')
           if(!item.data[propertyName]){
             return;
           }
+
           var exists;
           item.data[propertyName].some(function(otherProperty){
             var miniExists = comparator(otherProperty, property);
@@ -93,10 +94,13 @@ angular.module('zoteramaApp')
             }
           }
         });
+
         //make a connection to item if specified in params
         if(linkToItems){
           data = createOrUpdateLink(data, index, propertyIndex, 'propertyToItem');
         }
+        if(!data.nodes[propertyIndex].appearsInItems.length)
+          console.log(data.nodes[propertyIndex]);
       });
 
       //single prop (number or string)
@@ -161,6 +165,7 @@ angular.module('zoteramaApp')
             }
           }
         });
+
         //make a connection to item if specified in params
         if(linkToItems){
           data = createOrUpdateLink(data, index, propertyIndex, 'propertyToItem');
@@ -177,9 +182,11 @@ angular.module('zoteramaApp')
         switch(connector.name){
           case 'creators':
             data = checkOrCreateNodes(items, data, 'creators', item.data.creators, linkToItems, i, function(a,b){
-              if(a.lastName && b.lastName)
+              if(a.lastName && b.lastName){
                 return a.lastName.toLowerCase() == b.lastName.toLowerCase() && a.firstName.substr(0,1) === b.firstName.substr(0,1);
-              else return false;
+              }else if(a.name && b.name){
+                return a.name.toLowerCase() === b.name.toLowerCase()
+              }else return false;
             });
           break;
 
@@ -214,6 +221,7 @@ angular.module('zoteramaApp')
 
     var linkNonReferenceNodes = function(data){
 
+
       var node1, node2;
       for(var i = 0 ; i < data.nodes.length ; i++){
         node1 = data.nodes[i];
@@ -222,6 +230,7 @@ angular.module('zoteramaApp')
         }
         for(var j = i + 1 ; j  < data.nodes.length ; j++){
           node2 = data.nodes[j];
+
           node1.appearsInItems.forEach(function(index1){
             node2.appearsInItems.forEach(function(index2){
               if(index1 === index2){
@@ -243,6 +252,11 @@ angular.module('zoteramaApp')
         , activeConnectors = parameters.connectors.filter(function(connector){
                                 return connector.active;
                               });
+
+      //exclude notes
+      items = items.filter(function(item){
+        return item.data.itemType !== "note";
+      })
 
       if(parameters.showReferences){
         var i;
