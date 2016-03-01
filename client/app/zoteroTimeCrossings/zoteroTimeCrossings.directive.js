@@ -51,9 +51,9 @@ angular.module('zoteramaApp')
             var onLinkMouseClick = function(d, i){
                 if(!d.selected){
                     d.selected = true;
-                    link.filter(function(d,ind){
+                    link/*.filter(function(d,ind){
                         return ind !== i;
-                    }).style('opacity', .1);
+                    })*/.style('opacity', .1);
                     d3.select(this).style('opacity', 1);
 
                     node.style('opacity', 1);
