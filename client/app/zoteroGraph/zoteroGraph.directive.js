@@ -49,17 +49,35 @@ angular.module('zoteramaApp')
 
             svg.call(zoom);
 
-            var onNodeMouseOver = function(){
+            var onNodeMouseClick = function(d, i){
+                if(!d.selected){
+                    d.selected = true;
+                    node.style('opacity', .1);
 
+                    link.filter(function(datum){
+                        return datum.source.hashKey !== d.hashKey && datum.target.hashKey !== d.hashKey;
+                    }).style('opacity', .1);
+
+
+                    link.filter(function(datum){
+                        return datum.source.hashKey === d.hashKey || datum.target.hashKey === d.hashKey;
+                    }).each(function(datum){
+                        node.filter(function(dat){
+                            return datum.source.hashKey === dat.hashKey || datum.target.hashKey === dat.hashKey;
+                        }).style('opacity', .5)
+                    })
+
+                    d3.select(this).style('opacity', 1);
+
+                }else{
+                    d.selected = false;
+                    node.style('opacity', 1).each(function(datum){
+                        datum.selected = false;
+                    });
+                    link.style('opacity', 1);
+                }
             }
 
-            var onNodeMouseOut = function(){
-
-            }
-
-            var onNodeMouseClick = function(){
-
-            }
 
             var processText = function(d){
                 if(d.title){
@@ -188,6 +206,8 @@ angular.module('zoteramaApp')
 
 
                 enterNode.call(force.drag);
+
+                enterNode.on('click', onNodeMouseClick);
 
 
 

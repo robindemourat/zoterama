@@ -68,7 +68,9 @@ angular.module('zoteramaApp')
                     }).style('opacity', .1);
                 }else{
                     d.selected = false;
-                    link.style('opacity', 1);
+                    link.style('opacity', 1).each(function(datum){
+                        datum.selected = false;
+                    });
                     node.style('opacity', 1);
                 }
 
@@ -106,6 +108,10 @@ angular.module('zoteramaApp')
                     node.filter(function(d, ind){
                         return ind != i;
                     }).style('opacity', 1);
+
+                    node.each(function(datum){
+                        datum.selected = false;
+                    })
                 }
             }
 

@@ -40,7 +40,7 @@ angular.module('zoteramaApp')
         $scope.searchMode = false;
 
         $scope.visualizationParameters = {
-          mode : 'graph',
+          mode : 'graph',//graph or time
           connectors : [
             {
               name : 'creators',
@@ -80,6 +80,8 @@ angular.module('zoteramaApp')
     $scope.setLeftMenuContent = function(mode){
       if(mode === 'about'){
         return 'assets/html/menu-about.html';
+      }else if(mode === 'connect'){
+        return 'assets/html/menu-help-connect.html';
       }
     }
 
@@ -131,7 +133,7 @@ angular.module('zoteramaApp')
     }
 
     $scope.setDefaultZoteroCredentials = function(){
-      $http.get('assets/default-credentials/zotero-credentials.json')
+      $http.get('assets/default-credentials/zotero-credentials.default.json')
         .success(function(credentials){
           Angularytics.trackEvent("Zotero connection", "Set Zotero default account");
           $scope.setZoteroCredentials(credentials.apiKey, credentials.userId);

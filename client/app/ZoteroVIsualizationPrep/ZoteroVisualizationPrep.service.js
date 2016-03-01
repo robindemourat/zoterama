@@ -4,6 +4,38 @@ angular.module('zoteramaApp')
   .factory('ZoteroVisualizationPrep', function () {
     var factory = {};
 
+
+    var makeHashKey = function(property){
+      var hashKey = '';
+      switch(property.visItemType){
+        case 'creators':
+          if(property.firstName){
+            hashKey += property.firstName.toLowerCase().replace(/([\W]+)/gi, '-');
+          }
+          if(property.lastName){
+            hashKey += property.lastName.toLowerCase().replace(/([\W]+)/gi, '-');
+          }
+          if(property.name){
+            hashKey += property.name.toLowerCase().replace(/([\W]+)/gi, '-');
+          }
+        break;
+
+        case 'tags':
+          hashKey += property.tag.toLowerCase().replace(/([\W]+)/gi, '-');;
+        break;
+        default:
+          console.log(property.visItemType);
+          for(var i in property){
+                if(typeof property[i]+'' === 'string'){
+                   hashKey += (property[i] + '').toLowerCase().replace(/([\W]+)/gi, '-');
+                }
+          }
+        break;
+      }
+
+      return hashKey;
+    }
+
     //I check if a link is present in data.links, then create or update it
     var createOrUpdateLink = function(data, index1, index2, type){
       var index;
@@ -54,16 +86,11 @@ angular.module('zoteramaApp')
         //case not found : set new node
         if(!propertyIndex){
           hashKey = '';
-          for(var i in property){
-            if(typeof property[i]+'' === 'string'){
-                if(property[i].length > 10){
-                  hashKey += (property[i]+'').substr(0,9);
-                }else hashKey += (property[i] + '');
-              }
-          }
           property.visItemType = propertyName;
+
+          property.hashKey = makeHashKey(property);
+
           property.appearsInItems = [];
-          property.hashKey = hashKey;
           data.nodes.push(property);
           propertyIndex = data.nodes.length - 1;
         }
@@ -99,8 +126,6 @@ angular.module('zoteramaApp')
         if(linkToItems){
           data = createOrUpdateLink(data, index, propertyIndex, 'propertyToItem');
         }
-        if(!data.nodes[propertyIndex].appearsInItems.length)
-          console.log(data.nodes[propertyIndex]);
       });
 
       //single prop (number or string)
@@ -111,7 +136,7 @@ angular.module('zoteramaApp')
         if(!(properties + '').length){
           return;
         }
-        var hashKey = properties, propertyIndex, property = properties;
+        var hashKey = properties.toLowerCase().replace(/([\W]+)/gi, '-'), propertyIndex, property = properties;
 
         data.nodes.some(function(node, nodeIndex){
             if(nodeIndex != index && node.visItemType === 'reference'){
@@ -228,6 +253,8 @@ angular.module('zoteramaApp')
         if(node1.visItemType === 'reference'){
           continue;
         }
+
+
         for(var j = i + 1 ; j  < data.nodes.length ; j++){
           node2 = data.nodes[j];
 
@@ -240,6 +267,7 @@ angular.module('zoteramaApp')
           })
         }
       }
+
       return data;
     }
 
@@ -322,6 +350,10 @@ angular.module('zoteramaApp')
         delete node.appearsInItems;
         return node;
       });
+
+      // data.entities.forEach(function(entity){
+      //   console.log(entity);
+      // })
 
       data.events = data.events.map(function(event){
         return event.data;
